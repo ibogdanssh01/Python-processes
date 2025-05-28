@@ -1,0 +1,28 @@
+{
+    "project": {
+        "name": "Python Processes",
+        "version": "0.1.0",
+        "description": "TBD",
+        "author": "Constantin Bogdan-Teodor",
+        "email": "bogdanteodor.constantin@gmail.com"
+    },
+
+    "settings": {
+        "debug": true,
+        "log_level": "INFO",
+        "save_path": "./output/",
+        "enable_cache": true
+    },
+
+    "features": {
+        "use_gpu": false,
+        "enable_auth": false,
+        "experimental_mode": false
+    },
+
+    "database": {
+        "type": "sqlite",
+        "connection_string": "TBD"
+    }
+
+}
