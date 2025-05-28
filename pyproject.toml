@@ -1,0 +1,9 @@
+[project]
+name = "Python-Processe"
+dynamic = ["version"]
+requires-python = ">= 3.12"
+authors = [
+    {name = "Constantin Bogdan-Teodor", email = "bogdanteodor.constantin@gmail.com"},
+]
+description = ""
+readme = "README.md"
