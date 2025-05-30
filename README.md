@@ -53,6 +53,10 @@ python main.py
 3. Monitor app usage time in real-time.
 4. At the end of the week, generate and view usage charts.
 
+## Maintainers
+- **[@ibogdanssh01(Bogdan-Teodor Constantin)](https://github.com/ibogdanssh01)** – Project creator and primary maintainer (Co-owner).
+- **[@rotarustef(Stefan Rotaru)](https://github.com/rotarustef)** – Collaborator and co-maintainer (Co-Owner).
+
 ## 🤝 Contributing
 Contributions are welcome!  
 Feel free to fork the repository, submit pull requests, or suggest new features.
