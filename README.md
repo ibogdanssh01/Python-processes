@@ -55,7 +55,7 @@ python main.py
 
 ## Maintainers
 - **[@ibogdanssh01(Bogdan-Teodor Constantin)](https://github.com/ibogdanssh01)** – Project creator and primary maintainer (Co-owner).
-- **[@rotarustef(Stefan Rotaru)](https://github.com/rotarustef)** – Collaborator and co-maintainer (Co-Owner).
+- **[@rotarustef(Stefan Rotaru)](https://github.com/rotarustef)** – Collaborator and co-maintainer.
 
 ## 🤝 Contributing
 Contributions are welcome!  
