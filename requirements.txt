@@ -1,3 +1,6 @@
-wmi
 orjson
-customtkinter
+PyQt6
+psutil
+djangorestframework
+markdown
+django-filter
