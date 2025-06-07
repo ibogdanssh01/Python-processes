@@ -12,7 +12,7 @@ class ProcessInfo:
     - name: 'str = ""'      - The name of the process ex. chrome.exe
     - category: 'str = ""'  - The category of the process ex. PROCESS_CATEGORY_APP
     """
-    def __init__(self, process_id, name, category, time_of_creation):
+    def __init__(self, process_id = -1, name = " ", category = ProcessType.PROCESS_CATEGORY_DEFAULT, time_of_creation = (-1, -1)):
         self.process_id: int         = process_id
         self.name: str               = name
         self.category: ProcessType   = category
