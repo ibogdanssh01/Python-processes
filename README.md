@@ -20,15 +20,15 @@
 - **Generate weekly usage reports** with visual insights to help manage productivity.
 
 ## ✨ Features
-- 🖥️ Custom GUI built with `customtkinter` (subject to change as development evolves).
+- 🖥️ Custom GUI built with `PyQt6` (subject to change as development evolves).
 - 🔥 Terminate unwanted tasks and processes from the interface.
 - ⏳ Real-time monitoring of app usage and durations.
 - 📈 Weekly summary with visual charts to analyze your digital habits.
 
 ## 🛠️ Technologies
 - **Python** – Core language.
-- **customtkinter** – For the GUI (potentially adaptable to other frameworks).
-- **WMI** – For accessing system process information on Windows.
+- **PyQt6** – For the GUI (potentially adaptable to other frameworks).
+- **psutil** – For accessing system process information on Windows.
 - **Matplotlib** or **Plotly** – For generating usage charts.
 
 ## ⚙️ Installation
@@ -62,7 +62,7 @@ Contributions are welcome!
 Feel free to fork the repository, submit pull requests, or suggest new features.
 
 ## 📄 License
-Distributed under the **MIT License**.  
+Distributed under the **Business Source License 1.1**.  
 See [`LICENSE`](LICENSE) for details.
 
 ## 📫 Contact
