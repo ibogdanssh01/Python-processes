@@ -1,15 +1,11 @@
 """ -------------------- HEADERS -------------------- """
 
-from pathlib import Path
-import wmi
 import sys
 sys.path.append('../')
+from pathlib import Path
 from python_processes.dataclasses import ProcessInfo
 from python_processes.enums import ProcessType
 import psutil
-from pathlib import Path
-import orjson
-
 
 """ -------------------- HEADERS -------------------- """
 
@@ -17,66 +13,52 @@ import orjson
 
 """ -------------------- FUNCTIONS -------------------- """
 
-def findPath(name: str):
-    for pid in psutil.pids():
-        if psutil.Process(pid).name() == name:
-            return psutil.Process(pid).exe()
+def getProcessesWithParent() -> dict:
+    data = dict() # -> this dictionary gonna by like that, see below
+    """
+    PARENT_PID: {
+        CHILD_PID: {
+            "name": ...
+            "status": ...
+            "exe" (path): ...
+        }
+    },
+    PARENT_PID: {
+        same...
+    }
+    """
 
-def printProcesses(data: dict) -> None:
-    for pid, info in data.items():
-        name        = info.get("name")
-        abs_path    = info.get("abs_path")
-        status      = info.get("status")
-
-        print(f"Parent PID: {pid}")
-        print(f"  Name    : {name}")
-        print(f"  Path    : {abs_path}")
-        print(f"  Status  : {status}")
-        print()
-
-def getAllProcesses() -> dict:
-    data = dict()
-
-    for proc in psutil.process_iter(['pid', 'name', 'status']):
+    for proc in psutil.process_iter(['pid', 'ppid', 'name', 'status', 'exe']):
         try:
-            child = proc.info['pid']
-            name = proc.info['name']
-            status = proc.info["status"]
+            parent_pid      = "parent_id_{}".format(proc.info['ppid'])
+            child_pid       = "child_id_{}".format(proc.info['pid'])
+            process_name    = proc.info['name']
+            process_stats   = proc.info['status']
+            process_path    = proc.info['exe']
 
-            if child in data:
-                continue
+            if parent_pid not in data:
+                data[parent_pid] = {}
 
-            if child not in data:
-                data[child] = {}
+            if child_pid not in data[parent_pid]:
+                data[parent_pid][child_pid] = {}
 
-            data[child]["name"]        = name
-            data[child]["status"]      = status
+            data[parent_pid][child_pid]["name"] = process_name
+            data[parent_pid][child_pid]["status"] = process_stats
+            data[parent_pid][child_pid]["path"] = process_path
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             continue
     return data
 
-def getProcessPID() -> dict:
-    data = dict()  # -> store parent pid
 
-    for proc in psutil.process_iter(['pid', 'ppid', 'name', 'exe', 'status']):
-        try:
-            parent      = proc.info['ppid']
-            name        = proc.info['name']
-            abs_path    = proc.info['exe']
-            status      = proc.info['status']
-
-            if parent not in data:
-                data[parent] = {}
-
-            data[parent]["name"]        = name
-            data[parent]["abs_path"]    = abs_path
-            data[parent]["status"]      = status
-
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
-            continue
-
-    return data
-
+def display_process_tree(process_dict, indent=0):
+    for parent_pid, children in process_dict.items():
+        print("    " * indent + f"{parent_pid}: {{")
+        for child_pid, info in children.items():
+            print("    " * (indent + 1) + f"{child_pid}: {{")
+            for key, value in info.items():
+                print("    " * (indent + 2) + f'"{key}": {repr(value)}')
+            print("    " * (indent + 1) + "},")
+        print("    " * indent + "},")
 
 def process_categorizer(process_Name: str, processID: int, time_of_creation: tuple) -> ProcessInfo:
     pass
