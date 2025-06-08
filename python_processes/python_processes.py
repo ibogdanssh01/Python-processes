@@ -1,44 +1,66 @@
-from pathlib import Path
-import wmi
+""" -------------------- HEADERS -------------------- """
+
 import sys
 sys.path.append('../')
-from gui.guiApp import App
-from dictionary.order import order_by_name
-from duration_logic.calculate_time import getInitTime, getClass, process_time
+from pathlib import Path
 from python_processes.dataclasses import ProcessInfo
 from python_processes.enums import ProcessType
 import psutil
-from pathlib import Path
-import orjson
 
-def get_processes() -> dict:
-    processDict = dict()
-    getProcess = wmi.WMI()
-    for process in getProcess.Win32_Process():
-        processDict[process.ProcessId] = process.Name
-    return processDict
-
-def findPath(name):
-    for pid in psutil.pids():
-        if psutil.Process(pid).name() == name:
-            return psutil.Process(pid).exe()
+""" -------------------- HEADERS -------------------- """
 
 
-# def process_categorizer(process_Name: str, processID: int, time_of_creation: tuple) -> ProcessInfo:
-def process_categorizer(FILE_PATH) -> None:
-    # time_of_creation tuple (0 hour, 0 minute)
-    p = Path(FILE_PATH)
-    data = orjson.loads(p.read_bytes())
-    dict_processes = get_processes()
-    for process_id, process_name in dict_processes.items():
-        process = psutil.Process(process_id)
-        parent_ppid = process.ppid()
-        if parent_ppid not in data.keys():
-            if not process_name.endswith(".exe"):
-                category = ProcessType.PROCESS_CATEGORY_WINDOWS_SYSTEM.value
-            else:
-                category = ProcessType.PROCESS_CATEGORY_OTHER.value
-            data[str(parent_ppid)] = "({}, {})".format(process_name, category)
-        else:
-            error = "PPID EXIST ALREADY IN DICT"
-    p.write_bytes(orjson.dumps(data))
+
+""" -------------------- FUNCTIONS -------------------- """
+
+def getProcessesWithParent() -> dict:
+    data = dict() # -> this dictionary gonna by like that, see below
+    """
+    PARENT_PID: {
+        CHILD_PID: {
+            "name": ...
+            "status": ...
+            "exe" (path): ...
+        }
+    },
+    PARENT_PID: {
+        same...
+    }
+    """
+
+    for proc in psutil.process_iter(['pid', 'ppid', 'name', 'status', 'exe']):
+        try:
+            parent_pid      = "parent_id_{}".format(proc.info['ppid'])
+            child_pid       = "child_id_{}".format(proc.info['pid'])
+            process_name    = proc.info['name']
+            process_stats   = proc.info['status']
+            process_path    = proc.info['exe']
+
+            if parent_pid not in data:
+                data[parent_pid] = {}
+
+            if child_pid not in data[parent_pid]:
+                data[parent_pid][child_pid] = {}
+
+            data[parent_pid][child_pid]["name"] = process_name
+            data[parent_pid][child_pid]["status"] = process_stats
+            data[parent_pid][child_pid]["path"] = process_path
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+    return data
+
+
+def display_process_tree(process_dict, indent=0):
+    for parent_pid, children in process_dict.items():
+        print("    " * indent + f"{parent_pid}: {{")
+        for child_pid, info in children.items():
+            print("    " * (indent + 1) + f"{child_pid}: {{")
+            for key, value in info.items():
+                print("    " * (indent + 2) + f'"{key}": {repr(value)}')
+            print("    " * (indent + 1) + "},")
+        print("    " * indent + "},")
+
+def process_categorizer(process_Name: str, processID: int, time_of_creation: tuple) -> ProcessInfo:
+    pass
+
+""" -------------------- FUNCTIONS -------------------- """
