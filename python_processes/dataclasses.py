@@ -12,10 +12,12 @@ class ProcessInfo:
     - name: 'str = ""'      - The name of the process ex. chrome.exe
     - category: 'str = ""'  - The category of the process ex. PROCESS_CATEGORY_APP
     """
-    def __init__(self, process_id = -1, name = " ", category = ProcessType.PROCESS_CATEGORY_DEFAULT, time_of_creation = (-1, -1)):
-        self.process_id: int         = process_id
+    def __init__(self, parent_id: str = None, process_id: str = None, name: str = None, category: ProcessType = ProcessType.PROCESS_CATEGORY_DEFAULT, time_of_creation: tuple = (-1, -1), full_path: str = None):
+        self.parent_id: str          = parent_id
+        self.process_id: str         = process_id
         self.name: str               = name
         self.category: ProcessType   = category
+        self.full_path: str          = full_path
         self.time_of_creation: tuple = time_of_creation
 
     def __repr__(self):

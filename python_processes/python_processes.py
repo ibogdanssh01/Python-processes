@@ -1,11 +1,16 @@
 """ -------------------- HEADERS -------------------- """
 
 import sys
+import os
+import time
 sys.path.append('../')
 from pathlib import Path
 from python_processes.dataclasses import ProcessInfo
 from python_processes.enums import ProcessType
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import psutil
+import orjson
+from datetime import datetime
 
 """ -------------------- HEADERS -------------------- """
 
@@ -14,39 +19,32 @@ import psutil
 """ -------------------- FUNCTIONS -------------------- """
 
 def getProcessesWithParent() -> dict:
-    data = dict() # -> this dictionary gonna by like that, see below
-    """
-    PARENT_PID: {
-        CHILD_PID: {
-            "name": ...
-            "status": ...
-            "exe" (path): ...
-        }
-    },
-    PARENT_PID: {
-        same...
-    }
-    """
+    data = {}
 
-    for proc in psutil.process_iter(['pid', 'ppid', 'name', 'status', 'exe']):
+    def process_worker(proc):
         try:
-            parent_pid      = "parent_id_{}".format(proc.info['ppid'])
-            child_pid       = "child_id_{}".format(proc.info['pid'])
-            process_name    = proc.info['name']
-            process_stats   = proc.info['status']
-            process_path    = proc.info['exe']
-
-            if parent_pid not in data:
-                data[parent_pid] = {}
-
-            if child_pid not in data[parent_pid]:
-                data[parent_pid][child_pid] = {}
-
-            data[parent_pid][child_pid]["name"] = process_name
-            data[parent_pid][child_pid]["status"] = process_stats
-            data[parent_pid][child_pid]["path"] = process_path
+            info = proc.as_dict(attrs=['pid', 'ppid', 'name', 'status', 'exe'])
+            process_name = info['name']
+            parent_pid = f"parent_{info['ppid']}_{process_name.replace('.exe', '')}"
+            child_pid = f"child_{info['pid']}"
+            return parent_pid, child_pid, {
+                "name": process_name,
+                "status": info['status'],
+                "path": info['exe']
+            }
         except (psutil.NoSuchProcess, psutil.AccessDenied):
-            continue
+            return None
+
+    with ThreadPoolExecutor() as executor:
+        futures = [executor.submit(process_worker, proc) for proc in psutil.process_iter()]
+        for future in as_completed(futures):
+            result = future.result()
+            if result:
+                parent_pid, child_pid, info = result
+                if parent_pid not in data:
+                    data[parent_pid] = {}
+                data[parent_pid][child_pid] = info
+
     return data
 
 
@@ -60,7 +58,38 @@ def display_process_tree(process_dict, indent=0):
             print("    " * (indent + 1) + "},")
         print("    " * indent + "},")
 
+def monitor_system_to_json(log_interval=2, duration=10, output_path='./output/process_log.json'):
+    log_data = []
+    start_time = time.time()
+
+    while time.time() - start_time < duration:
+        timestamp = datetime.now().isformat()
+        snapshot = []
+
+        for proc in psutil.process_iter(['pid', 'name','cpu_percent', 'memory_info']):
+            try:
+                cpu = proc.cpu_percent(interval=0)
+                mem = proc.info['memory_info'].rss / (1024 * 1024) # MB
+                snapshot.append({
+                    'pid': proc.info['pid'],
+                    'name': proc.info['name'],
+                    'cpu_percent': round(cpu, 2),
+                    'memory_mb': round(mem, 2)
+                })
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+        log_data.append({
+            'timestamp': timestamp,
+            'processes': snapshot
+        })
+
+        time.sleep(log_interval)
+        with open(output_path, 'wb') as f:
+            f.write(orjson.dumps(log_data, option=orjson.OPT_INDENT_2))
+
 def process_categorizer(process_Name: str, processID: int, time_of_creation: tuple) -> ProcessInfo:
     pass
+
+
 
 """ -------------------- FUNCTIONS -------------------- """
