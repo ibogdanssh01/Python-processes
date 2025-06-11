@@ -1,6 +1,8 @@
 """ -------------------- HEADERS -------------------- """
 
-from python_processes.python_processes import getProcessPID, printProcesses, getAllProcesses
+from python_processes.python_processes import getProcessesWithParent
+from json_scripts.json_script import dump_data
+from time import sleep
 
 """ -------------------- HEADERS -------------------- """
 
@@ -17,7 +19,9 @@ IS_RUNNING = True
 """ -------------------- Main --------------------"""
 
 if __name__ == "__main__":
-    pass
-
+    while IS_RUNNING:
+        data = getProcessesWithParent()
+        dump_data(data)
+        sleep(2)
 
 """ -------------------- Main --------------------"""
