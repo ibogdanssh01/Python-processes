@@ -2,3 +2,4 @@ __pycache__
 processes.json
 venv
 *.png
+.idea
