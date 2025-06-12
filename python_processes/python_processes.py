@@ -20,30 +20,30 @@ from datetime import datetime
 
 def getProcessesWithParent() -> dict:
     data = {}
+    parent_name_cache = {}
 
-    def process_worker(proc):
+    for proc in psutil.process_iter(attrs=['pid', 'ppid', 'name', 'status', 'exe']):
         try:
-            info = proc.as_dict(attrs=['pid', 'ppid', 'name', 'status', 'exe'])
-            process_name = info['name']
-            parent_pid = f"parent_{info['ppid']}_{process_name.replace('.exe', '')}"
-            child_pid = f"child_{info['pid']}"
-            return parent_pid, child_pid, {
-                "name": process_name,
+            info = proc.info
+            ppid = info['ppid']
+
+            if ppid not in parent_name_cache:
+                try:
+                    parent_name_cache[ppid] = psutil.Process(ppid).name().removesuffix('.exe')
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    parent_name_cache[ppid] = "unknown"
+
+            parent_name = parent_name_cache[ppid]
+            parent_key = f"parent_{ppid}_{parent_name}"
+            child_key = f"child_{info['pid']}"
+            parent_dict = data.setdefault(parent_key, {})
+            parent_dict[child_key] = {
+                "name": info['name'],
                 "status": info['status'],
                 "path": info['exe']
             }
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
-            return None
-
-    with ThreadPoolExecutor() as executor:
-        futures = [executor.submit(process_worker, proc) for proc in psutil.process_iter()]
-        for future in as_completed(futures):
-            result = future.result()
-            if result:
-                parent_pid, child_pid, info = result
-                if parent_pid not in data:
-                    data[parent_pid] = {}
-                data[parent_pid][child_pid] = info
+        except (psutil.NoSuchProcess, psutil.AccessDenied, KeyError):
+            continue
 
     return data
 
