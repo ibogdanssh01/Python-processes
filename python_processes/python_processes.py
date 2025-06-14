@@ -5,9 +5,7 @@ import os
 import time
 sys.path.append('../')
 from pathlib import Path
-from python_processes.dataclasses import ProcessInfo
 from python_processes.enums import ProcessType
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import psutil
 import orjson
 from datetime import datetime
@@ -40,7 +38,8 @@ def getProcessesWithParent() -> dict:
             parent_dict[child_key] = {
                 "name": info['name'],
                 "status": info['status'],
-                "path": info['exe']
+                "path": info['exe'],
+                "process_type": process_categorizer(info['exe'])
             }
         except (psutil.NoSuchProcess, psutil.AccessDenied, KeyError):
             continue
@@ -85,10 +84,49 @@ def monitor_system_to_json(log_interval=2, duration=10, output_path='./output/pr
 
         time.sleep(log_interval)
         with open(output_path, 'wb') as f:
-            f.write(orjson.dumps(log_data, option=orjson.OPT_INDENT_2))
+            f.write(orjson.dumps(log_data))
 
-def process_categorizer(process_Name: str, processID: int, time_of_creation: tuple) -> ProcessInfo:
-    pass
+
+def process_categorizer(path: str) -> ProcessType:
+    if not path:
+        return ProcessType.PROCESS_CATEGORY_SYSTEM
+
+    path = path.lower()
+
+    if os.name == "nt":  # Windows
+        system_dirs = (
+            "\\windows\\system32\\",
+            "\\windows\\syswow64\\",
+            "\\windows\\systemapps\\",
+            "\\windows\\winsxs\\",
+            "\\programdata\\microsoft\\windows\\"
+        )
+        if any(p in path for p in system_dirs):
+            return ProcessType.PROCESS_CATEGORY_SYSTEM
+
+    elif os.name == "posix":  # Linux/macOS
+        system_dirs = (
+            "/usr/sbin/",
+            "/sbin/",
+            "/bin/",
+            "/lib/",
+            "/lib64/",
+            "/var/",
+            "/etc/",
+            "/boot/",
+            "/snap/core/",
+            "/system/library/",   # macOS
+            "/usr/libexec/",      # macOS
+        )
+        if any(path.startswith(p) for p in system_dirs):
+            return ProcessType.PROCESS_CATEGORY_SYSTEM
+
+    return ProcessType.PROCESS_CATEGORY_APP
+
+
+
+
+
 
 
 
