@@ -5,14 +5,19 @@ import os
 import time
 sys.path.append('../')
 from pathlib import Path
-from python_processes.enums import ProcessType
+from src.core.python_processes.enums import ProcessType
+from src.config.json_script import rule_loader
 import psutil
 import orjson
 from datetime import datetime
 
 """ -------------------- HEADERS -------------------- """
 
+""" --------------------- GLOBAL VAR -----------------"""
 
+rules = rule_loader()
+
+""" --------------------- GLOBAL VAR -----------------"""
 
 """ -------------------- FUNCTIONS -------------------- """
 
@@ -39,7 +44,7 @@ def getProcessesWithParent() -> dict:
                 "name": info['name'],
                 "status": info['status'],
                 "path": info['exe'],
-                "process_type": process_categorizer(info['exe'])
+                "process_type": get_process_category(info['exe'])
             }
         except (psutil.NoSuchProcess, psutil.AccessDenied, KeyError):
             continue
@@ -87,47 +92,18 @@ def monitor_system_to_json(log_interval=2, duration=10, output_path='./output/pr
             f.write(orjson.dumps(log_data))
 
 
-def process_categorizer(path: str) -> ProcessType:
+
+def get_process_category(path: str) -> ProcessType:
     if not path:
         return ProcessType.PROCESS_CATEGORY_SYSTEM
 
     path = path.lower()
 
-    if os.name == "nt":  # Windows
-        system_dirs = (
-            "\\windows\\system32\\",
-            "\\windows\\syswow64\\",
-            "\\windows\\systemapps\\",
-            "\\windows\\winsxs\\",
-            "\\programdata\\microsoft\\windows\\"
-        )
-        if any(p in path for p in system_dirs):
-            return ProcessType.PROCESS_CATEGORY_SYSTEM
-
-    elif os.name == "posix":  # Linux/macOS
-        system_dirs = (
-            "/usr/sbin/",
-            "/sbin/",
-            "/bin/",
-            "/lib/",
-            "/lib64/",
-            "/var/",
-            "/etc/",
-            "/boot/",
-            "/snap/core/",
-            "/system/library/",   # macOS
-            "/usr/libexec/",      # macOS
-        )
-        if any(path.startswith(p) for p in system_dirs):
+    for sys_path in rules["system_paths"]:
+        if sys_path in path:
             return ProcessType.PROCESS_CATEGORY_SYSTEM
 
     return ProcessType.PROCESS_CATEGORY_APP
-
-
-
-
-
-
 
 
 """ -------------------- FUNCTIONS -------------------- """
