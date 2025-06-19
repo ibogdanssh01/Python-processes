@@ -1,23 +1,20 @@
 import sys
-import orjson
 import ctypes
-from time import sleep
+import psutil
 import platform
 from src.core.python_processes.python_processes import ProcessMonitor
-from src.core.python_processes.enums import ProcessType
 from src.config.json_script import dump_data
 from PyQt6.QtGui import QIcon, QPixmap, QStandardItemModel, QStandardItem
 from PyQt6 import QtWidgets, uic
-from PyQt6.QtCore import QSize, QThread, pyqtSignal as Signal, pyqtSlot as Slot, QObject
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QSystemTrayIcon, QMessageBox
+from PyQt6.QtWidgets import QApplication, QMainWindow, QSystemTrayIcon
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-        uic.loadUi('ui/MainWindow.ui', self)
+        uic.loadUi('src/gui/ui/MainWindow.ui', self)
 
-        icon = QIcon(QPixmap('assets/logo.png'))
+        icon = QIcon(QPixmap('src/gui/assets/logo.png'))
         self.setWindowIcon(icon)
 
         my_gui = u'python.processes'
@@ -30,7 +27,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle('BETA')
 
-        icon_tray = QIcon(QPixmap('assets/tray.png'))
+        icon_tray = QIcon(QPixmap('src/gui/assets/tray.png'))
         tray = QSystemTrayIcon(self)
         tray.setIcon(icon_tray)
         tray.show()
@@ -38,10 +35,9 @@ class MainWindow(QMainWindow):
         processMonitor = ProcessMonitor()
         json_data = processMonitor.get_processes_with_parents()
         dump_data(json_data)
-        print(json_data)
 
 
-        self.pushButton_3.clicked.connect(self.start)
+        self.pushButton_3.clicked.connect(self.kill_proc)
 
         self.model = QStandardItemModel()
         self.model.setHorizontalHeaderLabels(["Name", "PID", "PPID", "Status", "Process type", "Path"])
@@ -79,9 +75,12 @@ class MainWindow(QMainWindow):
         #     5000,
         # )
 
-    def start(self):
-        print("start")
+    def kill_proc(self):
+        selected_pid = self.treeView.selectedIndexes()[1]
+        pid = selected_pid.model().itemFromIndex(selected_pid).text()
 
+        p = psutil.Process(int(pid))
+        p.kill()
 
 
 
