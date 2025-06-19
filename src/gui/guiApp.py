@@ -1,6 +1,7 @@
 import sys
-import orjson
+import subprocess
 import ctypes
+import psutil
 from time import sleep
 import platform
 from src.core.python_processes.python_processes import ProcessMonitor
@@ -40,7 +41,7 @@ class MainWindow(QMainWindow):
         dump_data(json_data)
 
 
-        self.pushButton_3.clicked.connect(self.start)
+        self.pushButton_3.clicked.connect(self.kill_proc)
 
         self.model = QStandardItemModel()
         self.model.setHorizontalHeaderLabels(["Name", "PID", "PPID", "Status", "Process type", "Path"])
@@ -78,9 +79,12 @@ class MainWindow(QMainWindow):
         #     5000,
         # )
 
-    def start(self):
-        print("start")
+    def kill_proc(self):
+        selected_pid = self.treeView.selectedIndexes()[1]
+        pid = selected_pid.model().itemFromIndex(selected_pid).text()
 
+        p = psutil.Process(int(pid))
+        p.kill()
 
 
 
