@@ -15,9 +15,9 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout,
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-        uic.loadUi('ui/MainWindow.ui', self)
+        uic.loadUi('src/gui/ui/MainWindow.ui', self)
 
-        icon = QIcon(QPixmap('assets/logo.png'))
+        icon = QIcon(QPixmap('src/gui/assets/logo.png'))
         self.setWindowIcon(icon)
 
         my_gui = u'python.processes'
@@ -30,7 +30,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle('BETA')
 
-        icon_tray = QIcon(QPixmap('assets/tray.png'))
+        icon_tray = QIcon(QPixmap('src/gui/assets/tray.png'))
         tray = QSystemTrayIcon(self)
         tray.setIcon(icon_tray)
         tray.show()
@@ -38,7 +38,6 @@ class MainWindow(QMainWindow):
         processMonitor = ProcessMonitor()
         json_data = processMonitor.get_processes_with_parents()
         dump_data(json_data)
-        print(json_data)
 
 
         self.pushButton_3.clicked.connect(self.start)
