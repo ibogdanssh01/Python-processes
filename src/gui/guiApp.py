@@ -1,16 +1,12 @@
 import sys
-import subprocess
 import ctypes
 import psutil
-from time import sleep
 import platform
 from src.core.python_processes.python_processes import ProcessMonitor
-from src.core.python_processes.enums import ProcessType
 from src.config.json_script import dump_data
 from PyQt6.QtGui import QIcon, QPixmap, QStandardItemModel, QStandardItem
 from PyQt6 import QtWidgets, uic
-from PyQt6.QtCore import QSize, QThread, pyqtSignal as Signal, pyqtSlot as Slot, QObject
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QSystemTrayIcon, QMessageBox
+from PyQt6.QtWidgets import QApplication, QMainWindow, QSystemTrayIcon
 
 
 class MainWindow(QMainWindow):
