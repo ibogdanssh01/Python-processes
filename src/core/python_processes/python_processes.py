@@ -5,15 +5,10 @@ sys.path.append('../')
 from src.core.python_processes.enums import ProcessType
 from src.config.json_script import rule_loader
 import psutil
-from datetime import datetime
-
-""" -------------------- HEADERS -------------------- """
 
 """ --------------------- GLOBAL VAR -----------------"""
 
 rules = rule_loader()
-
-""" --------------------- GLOBAL VAR -----------------"""
 
 """ -------------------- FUNCTIONS -------------------- """
 
@@ -117,6 +112,3 @@ class ProcessMonitor:
 #             return ProcessType.PROCESS_CATEGORY_SYSTEM
 
 #     return ProcessType.PROCESS_CATEGORY_APP
-
-
-""" -------------------- FUNCTIONS -------------------- """
