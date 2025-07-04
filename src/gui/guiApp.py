@@ -3,6 +3,7 @@ import ctypes
 import psutil
 import platform
 from src.core.python_processes.python_processes import ProcessMonitor
+from src.core.python_processes.threaded_monitor import ProcessWatcher
 from src.config.json_script import dump_data
 from PyQt6.QtGui import QIcon, QPixmap, QStandardItemModel, QStandardItem
 from PyQt6 import QtWidgets, uic
