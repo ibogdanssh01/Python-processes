@@ -24,7 +24,7 @@ class ProcessWatcher:
     
     def start(self) -> None:
         for pid in self.pids:
-            t = threading.Thread(traget=self._watch, args=(pid,), daemon=True)
+            t = threading.Thread(target=self._watch, args=(pid,), daemon=True)
             self._threads.append(t)
             t.start()
     

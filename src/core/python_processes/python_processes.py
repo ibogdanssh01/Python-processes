@@ -8,11 +8,13 @@ import psutil
 from datetime import timedelta
 import time
 
+
 """ --------------------- GLOBAL VAR -----------------"""
 
 rules = rule_loader()
 
 """ -------------------- FUNCTIONS -------------------- """
+
 
 class ProcessMonitor:
     def __init__(self):
@@ -37,7 +39,6 @@ class ProcessMonitor:
             except (psutil.NoSuchProcess, psutil.AccessDenied, KeyError):
                 continue
         return data
-
 
     def _get_parent_key(self, ppid: int) -> str:
         if ppid not in self.parent_name_cache:
