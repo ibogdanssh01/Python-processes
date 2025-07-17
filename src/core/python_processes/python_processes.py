@@ -59,3 +59,5 @@ class ProcessMonitor:
                 return ProcessType.PROCESS_CATEGORY_SYSTEM
 
         return ProcessType.PROCESS_CATEGORY_APP
+
+    
