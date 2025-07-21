@@ -13,7 +13,7 @@ import orjson
 """ -------------------- GLOBAL VARIABLES --------------------"""
 
 IS_RUNNING = True
-INTERVAL_SEC = 5.0  # pause between scans
+INTERVAL_SEC = 1.0  # pause between scans
 processMonitor = ProcessMonitor()
 
 """ -------------------- GLOBAL VARIABLES --------------------"""
@@ -32,7 +32,7 @@ if __name__ == "__main__":
         watcher = ProcessWatcher(child_pids)
         durations = watcher.poll()
         for rec in flat:
-            rec["duration_s"] = durations.get(rec["child_pid"], 0.0)
+            rec["durations_s"] = durations.get(rec["child_pid"], 0.0)
 
         for rec in flat:
             rec["durations_s"] = watcher.durations.get(rec["child_pid"], 0.0)
