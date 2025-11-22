@@ -99,7 +99,8 @@ pip install -r requirements.txt
 ### 4. Run the application
 
 ```bash
-python src/main.py
+./docker-helper.sh build    -> for building the image
+./docker-helper.sh run      -> for running the application
 ```
 
 ---
