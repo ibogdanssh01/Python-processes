@@ -2,15 +2,16 @@
 
 import time
 from src.core.python_processes.python_processes import ProcessMonitor
-from src.config.json_script import dump_data
 from time import perf_counter
 from src.core.python_processes.threaded_monitor import ProcessWatcher, flatten_process_dict
 from typing import List, Dict, Any
 import orjson
 from pathlib import Path
-import os, signal
+import os
+import signal
 
-""" -------------------- HEADERS -------------------- """
+# from src.config.json_script import dump_data
+# from src.gui.guiApp import run_gui
 
 """ -------------------- GLOBAL VARIABLES --------------------"""
 
@@ -18,10 +19,8 @@ IS_RUNNING = True
 OUTPUT_PATH = Path(os.getenv("PROC_DURATION_PATH", "/app/runtime/process_durations.json"))
 INTERVAL_SEC = float(os.getenv("INTERVAL_SEC", 5.0))
 processMonitor = ProcessMonitor()
-signal.signal(signal.SIGTERM, lambda *_: globals().__setitem__("IS_RUNNING", False))  
+signal.signal(signal.SIGTERM, lambda *_: globals().__setitem__("IS_RUNNING", False))
 signal.signal(signal.SIGINT, lambda *_: globals().__setitem__("IS_RUNNING", False))
-
-""" -------------------- GLOBAL VARIABLES --------------------"""
 
 """ -------------------- Main --------------------"""
 
@@ -49,14 +48,12 @@ if __name__ == "__main__":
             f.write(orjson.dumps(flat, option=orjson.OPT_INDENT_2))
             f.flush()
             os.fsync(f.fileno())
-        tmp_path.replace(OUTPUT_PATH) # atomic rename on POSIX
+        tmp_path.replace(OUTPUT_PATH)  # atomic rename on POSIX
 
         t2 = perf_counter()
         print(f"Iteration took {t2-t1:.3f} seconds")
 
         time.sleep(INTERVAL_SEC)
         print("Start over again....")
-    
-    print("Received signal, existing cleanly.")
 
-""" -------------------- Main --------------------"""
+    print("Received signal, existing cleanly.")

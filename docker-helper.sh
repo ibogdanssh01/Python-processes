@@ -36,13 +36,14 @@ build_image() {
 }
 
 run_container() {
-    log "Running image "$IMAGE_NAME"..."
+    log "Running image $IMAGE_NAME as root..."
     "$DOCKER" run --rm \
-    --pid=host \
-    -v "$PWD/runtime":/app/runtime \
-    -e PROC_DURATIONS_PATH=/app/runtime/process_durations.json \
-    -e QT_QPA_PLATFORM=offscreen \
-    "$IMAGE_NAME" "$@"
+        --user root \
+        --pid=host \
+        -v "$PWD/runtime":/app/runtime \
+        -e PROC_DURATIONS_PATH=/app/runtime/process_durations.json \
+        -e QT_QPA_PLATFORM=offscreen \
+        "$IMAGE_NAME" "$@"
 }
 
 clean_image() {
